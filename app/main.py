@@ -6,6 +6,8 @@ import discord
 from discord.ext import commands
 from typing import List, Dict, Optional, Tuple
 import os
+from fastapi import FastAPI
+import uvicorn
 
 API_KEY = os.getenv("OPENAI_API_KEY")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -148,10 +150,22 @@ class QuizBot(commands.Bot):
             await ctx.send("全ての問題が終了しました。お疲れさまでした！")
             del self.active_games[ctx.channel.id]
 
+app = FastAPI()
+
+@app.get("/health")
+def health_check():
+    return {"status": "OK"}
+
 def main():
     game = QuizGame(API_KEY, MODEL)
     bot = QuizBot(game)
-    bot.run(DISCORD_TOKEN)
+
+    # Discordボットを別スレッドで実行
+    loop = asyncio.get_event_loop()
+    loop.create_task(bot.start(DISCORD_TOKEN))
+
+    # FastAPIを実行
+    uvicorn.run(app, host="0.0.0.0", port=8080)
 
 if __name__ == "__main__":
     main()
