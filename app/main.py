@@ -13,13 +13,13 @@ import logging  # ロギングモジュールをインポート
 # ロギングの設定
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-API_KEY = os.getenv("OPENAI_API_KEY")
+API_KEY = os.environ.get("OPENAI_API_KEY")
 if API_KEY:
     logging.info("OPENAI_API_KEYが読み込まれました。")
 else:
     logging.warning("OPENAI_API_KEYが設定されていません。")
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 if DISCORD_TOKEN:
     logging.info("DISCORD_TOKENが読み込まれました。")
 else:
