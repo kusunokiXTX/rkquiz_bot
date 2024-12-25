@@ -1,3 +1,4 @@
+import os
 import openai
 import json
 import random
@@ -5,21 +6,24 @@ import asyncio
 import discord
 from discord.ext import commands
 from typing import List, Dict, Optional, Tuple
-import os
 from fastapi import FastAPI
 import uvicorn
+import logging  # ロギングモジュールをインポート
+
+# ロギングの設定
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 API_KEY = os.getenv("OPENAI_API_KEY")
 if API_KEY:
-    print("OPENAI_API_KEYが読み込まれました。")
+    logging.info("OPENAI_API_KEYが読み込まれました。")
 else:
-    print("OPENAI_API_KEYが設定されていません。")
+    logging.warning("OPENAI_API_KEYが設定されていません。")
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 if DISCORD_TOKEN:
-    print("DISCORD_TOKENが読み込まれました。")
+    logging.info("DISCORD_TOKENが読み込まれました。")
 else:
-    print("DISCORD_TOKENが設定されていません。")
+    logging.warning("DISCORD_TOKENが設定されていません。")
 
 MODEL = "gpt-4o-mini"
 
@@ -30,6 +34,7 @@ class QuizGame:
         self.client = openai.OpenAI(api_key=api_key)
         
     async def ask_question(self, prompt: str, is_comparison: bool = False) -> str:
+        logging.info("質問を送信: %s", prompt)  # 質問を送信する際にログを記録
         try:
             system_content = (
                 "前回の質問と比べて、今回の質問が正解に対して近いと判断できれば「前回よりも良い質問です。」とだけ答えなさい。"
@@ -52,12 +57,15 @@ class QuizGame:
             return response.choices[0].message.content.strip()
             
         except openai.APIError as e:
+            logging.error("OpenAI APIエラー: %s", str(e))  # エラーをログに記録
             return f"OpenAI APIエラー: {str(e)}"
         except Exception as e:
+            logging.error("エラーが発生しました: %s", str(e))  # エラーをログに記録
             return f"エラーが発生しました: {str(e)}"
 
     async def get_responses(self, problem: str, solution: str, current_question: str, 
                           previous_question: Optional[str] = None) -> Tuple[str, str]:
+        logging.info("問題: %s, 解答: %s, 現在の質問: %s", problem, solution, current_question)  # ログを記録
         prompt = f"## 問題\n{problem}\n\n## 真相\n{solution}\n\n## 質問\n{current_question}"
         regular_answer = await self.ask_question(prompt)
         
@@ -84,6 +92,7 @@ class QuizBot(commands.Bot):
     async def setup_hook(self):
         @self.command(name='quiz', help='水平思考クイズを開始します')
         async def quiz(ctx):
+            logging.info("クイズが開始されました。チャンネルID: %s", ctx.channel.id)  # ログを記録
             if ctx.channel.id in self.active_games:
                 await ctx.send("このチャンネルではすでにクイズが進行中です。")
                 return
