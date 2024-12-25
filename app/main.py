@@ -6,9 +6,6 @@ import discord
 from discord.ext import commands
 from typing import List, Dict, Optional, Tuple
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 API_KEY = os.getenv("OPENAI_API_KEY")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
