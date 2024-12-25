@@ -165,7 +165,7 @@ class QuizBot(commands.Bot):
                         del self.active_games[ctx.channel.id]
                         return
 
-            await ctx.send("全ての問題が終了しました。お疲れさまでした！")
+            await ctx.send("全て��問題が終了しました。お疲れさまでした！")
             del self.active_games[ctx.channel.id]
 
 app = FastAPI()
@@ -174,16 +174,16 @@ app = FastAPI()
 def health_check():
     return {"status": "OK"}
 
-def main():
+async def run():
     game = QuizGame(API_KEY, MODEL)
     bot = QuizBot(game)
+    await asyncio.gather(
+        bot.start(DISCORD_TOKEN),
+        uvicorn.run(app, host="0.0.0.0", port=8080)
+    )
 
-    # Discordボットを別スレッドで実行
-    loop = asyncio.get_event_loop()
-    loop.create_task(bot.start(DISCORD_TOKEN))
-
-    # FastAPIを実行
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+def main():
+    asyncio.run(run())
 
 if __name__ == "__main__":
     main()
