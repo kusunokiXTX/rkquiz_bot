@@ -10,7 +10,16 @@ from fastapi import FastAPI
 import uvicorn
 
 API_KEY = os.getenv("OPENAI_API_KEY")
+if API_KEY:
+    print("OPENAI_API_KEYが読み込まれました。")
+else:
+    print("OPENAI_API_KEYが設定されていません。")
+
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+if DISCORD_TOKEN:
+    print("DISCORD_TOKENが読み込まれました。")
+else:
+    print("DISCORD_TOKENが設定されていません。")
 
 MODEL = "gpt-4o-mini"
 
